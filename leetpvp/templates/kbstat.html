@@ -1,0 +1,72 @@
+{% extends "public/base.html" %}
+{% load bootstrap %}
+{% load staticfiles %}
+{% load humanize %}
+
+{% block title %}Alliance Auth{% endblock %}
+
+{% block page_title %}Services Management{% endblock page_title %}
+{% block extra_css %}{% endblock extra_css %}
+
+{% block content %}
+<div class="container">
+    <div class="col-md-9">
+        <div class="">
+        <form class="form-inline" method="post">
+{#            <div class="form-group">#}
+            {% csrf_token %}
+            {{ form|bootstrap }}
+{#            </div>#}
+            <div class="form-group">
+            <button class="btn btn-primary" type="submit">Generate Report</button>
+            {% if user.is_superuser %}
+                <a class="btn btn-danger" href="{% url 'kb-stats-generate' %}">Pull Stats From zKILL</a>
+            {% endif %}
+            </div>
+        </form>
+
+        </div>
+        <table id="stat-table" class="tablesorter table table-bordered table-striped">
+            <thead>
+                <th>Portrait</th>
+                <th>Player</th>
+                <th>Month</th>
+                <th>Year</th>
+                <th>Kills</th>
+                <th>Losses</th>
+                <th>Isk Destroyed</th>
+                <th>Isk Lost</th>
+            </thead>
+
+            <tbody>
+            {% for stat in stats %}
+                <tr>
+                    <td><img src="https://image.eveonline.com/Character/{{ stat.user.auth_services_info.first.main_char_id }}_32.jpg"></td>
+{#                    <td>{{ stat.user.username }}</td>#}
+  <td>{{ stat.user.auth_services_info.first.get_character.character_name }}</td>
+
+                    <td>{{ stat.month }}</td>
+                    <td>{{ stat.year }}</td>
+                    <td>{{ stat.shipsDestroyed }}</td>
+                    <td>{{ stat.shipsLost }}</td>
+                    <td>{{ stat.iskDestroyed|intcomma }}</td>
+                    <td>{{ stat.iskLost|intcomma }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <img src="http://i.imgur.com/HHE5Uao.png" class="img-responsive">
+    </div>
+</div>
+{% endblock content %}
+{% block extra_script %}
+<script type="text/javascript" src="{% static 'js/tablesort.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/tablesort.numeric.js' %}"></script>
+<script>
+new Tablesort(document.getElementById('stat-table'), {
+  descending: true
+});
+
+</script>
+
+{% endblock %}
